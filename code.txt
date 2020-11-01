@@ -1,0 +1,734 @@
+#include <iostream>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include "Movement.hpp"
+#include "StartScreen.hpp"
+#include <fstream>
+#include <string>
+#include <sstream>
+
+using namespace sf;
+using namespace std;
+
+
+
+int const r=17;// do not put this in the final code, this a global variable
+int const c=17;// do not put this in the final code, this a global variable
+
+void tracker(char siz[r][c], Sprite maze[][c], Sprite& GM,
+          int& xd, int& yd,Texture& GhostMan)
+          {
+           ifstream mazefile;
+mazefile.open("resources/maze1.txt");
+
+for(auto i=0; i<r; i++)
+{
+ for(auto j=0; j<c; j++)
+ {
+  mazefile>> siz[i][j];
+  if(siz[i][j]=='G')
+  {
+      xd=i;
+      yd=j;
+  }
+
+
+
+          }
+}
+
+    GM.setTexture(GhostMan);
+    sf::Rect<float> size = GM.getGlobalBounds();
+    GM.setOrigin(sf::Vector2f(size.width/2,size.height/2));
+    GM.setScale(0.140,0.140);
+    GM.setPosition(yd*54,xd*75);
+          }
+
+void cap(char siz[r][c], Sprite maze[][c], Sprite& PM,
+          int& xcod, int& ycod,Texture& bricks, Texture& stars,
+        Texture& PacMan,Texture& SuperFood,float pi[],float pj[],
+        Texture& door,Texture& Key,Texture& Fruit)
+{
+ifstream mazefile;
+mazefile.open("resources/maze1.txt");
+
+for(auto i=0; i<r; i++)
+{
+ for(auto j=0; j<c; j++)
+ {
+  mazefile>> siz[i][j];
+  if(siz[i][j]=='b')
+  {
+      maze[i][j].setTexture(bricks);
+      maze[i][j].setPosition(j*50,i*50);
+      maze[i][j].setScale(0.200,0.200);
+
+  }
+
+
+  else if (siz[i][j]=='u')
+{
+     maze[i][j].setTexture(SuperFood);
+      maze[i][j].setPosition(j*45.5,i*45.4);
+      maze[i][j].setScale(0.075,0.075);
+}
+
+ else if(siz[i][j]=='s')
+  {
+      maze[i][j].setTexture(stars);
+      maze[i][j].setPosition(j*50,i*50);
+      maze[i][j].setScale(0.0800,0.080);
+  }
+
+  else if(siz[i][j]=='d')
+  {
+      maze[i][j].setTexture(door);
+      maze[i][j].setPosition(j*50,i*50);
+      maze[i][j].setScale(0.0950,0.095);
+  }
+
+   else if(siz[i][j]=='k')
+  {
+      maze[i][j].setTexture(Key);
+      maze[i][j].setPosition(j*50,i*50);
+      maze[i][j].setScale(0.0950,0.095);
+
+  }
+
+   else if(siz[i][j]=='f')
+  {
+      maze[i][j].setTexture(Fruit);
+      maze[i][j].setPosition(j*50,i*50);
+      maze[i][j].setScale(0.20,0.20);
+
+  }
+
+   if(siz[i][j]=='p')
+  {
+      xcod=i;
+      ycod=j;
+  }
+
+
+ }
+}
+
+    PM.setTexture(PacMan);
+    sf::Rect<float> size = PM.getGlobalBounds();
+    PM.setOrigin(sf::Vector2f(size.width/2,size.height/2));
+    PM.setScale(0.085,0.085);
+    PM.setPosition(ycod*62,xcod*85);
+
+}
+
+
+Movement::Movement()
+{
+int score=0;
+int K_num=0;
+int F_num=0;
+float ipos[100];
+float jpos[100];
+
+char siz[r][c];
+char rec[r][c];
+
+
+cout<<"Number of Fruit:"<<F_num<<endl;
+   sf::RenderWindow window( sf::VideoMode( 1000, 900 ), "Awesome Game" );
+  sf::FloatRect Boundary(sf::Vector2f(0.f,0.f),window.getDefaultView().getSize());
+
+    sf::Texture bricks;
+    bricks.loadFromFile("resources/brickpixel.png");
+
+    sf::Texture stars;
+    stars.loadFromFile("resources/stars.png");
+
+    sf::Texture door;
+    door.loadFromFile("resources/door-1.png");
+
+    sf::Texture KEY;
+    KEY.loadFromFile("resources/key-1.png");
+
+     sf::Texture Fruit;
+    Fruit.loadFromFile("resources/fruit.jpg");
+
+    sf::Texture SuperFood;
+    SuperFood.loadFromFile("resources/Supereatball.png");
+
+    sf::Texture PacMan;
+    PacMan.loadFromFile("resources/PacManeat.png");
+
+    sf::Texture GhostMan;
+    GhostMan.loadFromFile("resources/ghost1.jpg");
+
+    sf::Sprite maze[r][c];
+
+    sf::Sprite GM;
+
+    int id;
+    int jd;
+
+    tracker(siz,maze,GM,id,jd,GhostMan);
+
+
+
+
+
+
+
+    sf::Sprite Doors;
+    Doors.setTexture(door);
+
+
+    sf::Sprite fruit;
+    fruit.setTexture(Fruit);
+
+
+
+    sf::Sprite key;
+    key.setTexture(KEY);
+
+    sf::Sprite Blocks;
+    Blocks.setTexture(bricks);
+
+    sf::Sprite PM;
+
+
+
+    int icod;
+    int jcod;
+
+
+
+
+
+  cap(siz,maze,PM,icod,jcod,bricks,stars,PacMan,SuperFood,ipos,jpos,door,KEY,Fruit);
+
+
+
+
+    sf::Sprite Pallet;
+
+    Pallet.setTexture(SuperFood);
+//   Pallet.setOrigin(sf::Vector2f(size.width/2,size.height/2));
+    //Pallet.setPosition(900,550);
+    //Pallet.setScale(0.125,0.125);
+
+for(auto i=0;i<r;i++)
+        {
+            for(auto j=0;j<r;j++)
+            {
+              if(siz[i][j]=='f')
+              {
+                  F_num++;
+              }
+            }
+
+        cout<<"Number of Fruits: "<<F_num<<endl;
+        }
+
+
+
+    while ( window.isOpen())
+    {
+    sf::Font GameOver;
+    if(!GameOver.loadFromFile("resources/sansation.ttf"))
+    {
+     system("PAUSE");
+    }
+
+    sf::Text G_O;
+    G_O.setFont(GameOver);
+    G_O.setString("CONGRAGULATIONS YOU WIN");
+    G_O.setPosition(250,450);
+    G_O.setCharacterSize(30);
+    G_O.setColor(sf::Color::Blue);
+
+    sf::Text Loser;
+    Loser.setFont(GameOver);
+    Loser.setString("You Died hahahahah");
+    Loser.setPosition(250,450);
+    Loser.setCharacterSize(30);
+    Loser.setColor(sf::Color::Blue);
+
+
+
+
+                            for (auto j=0;j<r;j++)
+                            {
+                              for(auto k=0;j<k;k++)
+                            {
+                              if(GM.getGlobalBounds().intersects(maze[j][k].getGlobalBounds()))
+                                 {
+                                     if(siz[j][k]!='b')
+                                     GM.setScale(0.055,0.055);
+                                      GM.setRotation(0);
+                                      GM.setRotation(90);
+                                    GM.move(0,1);
+                                    id++;
+
+                                 }
+                              else
+                              {
+                                 GM.move(0,1);
+                              }
+
+                            }
+                            }
+
+
+
+
+
+
+
+    stringstream ss;
+    ss<<score;
+    stringstream ks;
+    ks<<K_num;
+
+    sf::Font counter;
+    if(!counter.loadFromFile("resources/sansation.ttf"))
+    {
+     system("PAUSE");
+    }
+
+    sf::Text Points;
+    Points.setFont(counter);
+    Points.setString("Score:");
+    Points.setPosition(850,0);
+    Points.setCharacterSize(35);
+    Points.setColor(sf::Color::Red);
+
+    sf::Text S_num;
+    S_num.setFont(counter);
+    S_num.setString(ss.str());
+    S_num.setPosition(960,0);
+    S_num.setCharacterSize(35);
+    S_num.setColor(sf::Color::Blue);
+
+    sf::Text keys;
+    keys.setFont(counter);
+    keys.setString("Keys:");
+    keys.setPosition(850,35);
+    keys.setCharacterSize(35);
+    keys.setColor(sf::Color::Red);
+
+     sf::Text Key_num;
+    Key_num.setFont(counter);
+    Key_num.setString(ks.str());
+    Key_num.setPosition(960,35);
+    Key_num.setCharacterSize(35);
+    Key_num.setColor(sf::Color::Blue);
+
+
+
+
+        Event event;
+
+
+        while (window.pollEvent(event))
+        {
+        if (event.type == Event::Closed) {
+                window.close();
+            }
+
+            if (event.type == Event::KeyPressed) {
+                switch (event.key.code) {
+                    case Keyboard::Escape:
+                        window.close();
+                        break;
+
+                    case Keyboard::Left:
+                        if(siz[icod][jcod-1] !='b' && siz[icod][jcod-1] !='d' && siz[icod][jcod-1] !='f'  ){
+                        PM.setRotation(0);
+                        PM.setScale(-0.075,0.075);
+                        PM.move(-50,0);
+                        jcod--;
+                        }
+                         if(siz[icod][jcod-1] =='k')
+                         {
+                        siz[icod][jcod-1] ='s';
+                           maze[icod][jcod-1].setTexture(stars);
+                           maze[icod][jcod-1].setPosition(jcod*51,icod*51);
+                           maze[icod][jcod-1].setScale(0.0800,0.080);
+                          PM.setRotation(0);
+                         PM.setScale(-0.075,0.075);
+                            PM.move(-50,0);
+                            jcod--;
+                            K_num=K_num+1;
+                            cout<<K_num<<endl;
+
+                         }
+                          if(siz[icod][jcod-1] =='d')
+                         {
+                             if(K_num>0)
+                             {
+                              siz[icod][jcod-1] ='s';
+                              maze[icod][jcod-1].setTexture(stars);
+                              maze[icod][jcod-1].setPosition(jcod*51,icod*51);
+                              maze[icod][jcod-1].setScale(0.0800,0.080);
+                              PM.setRotation(0);
+                             PM.setScale(-0.075,0.075);
+                            PM.move(-50,0);
+                            jcod--;
+                            K_num=K_num-1;
+                            cout<<K_num<<endl;
+                             }
+                             else
+                             {
+                            PM.setRotation(0);
+                            PM.setScale(-0.085,0.085);
+                            PM.move(0,0);
+                             }
+
+                         }
+
+                          if(siz[icod][jcod-1] =='f')
+                         {
+                        siz[icod][jcod-1] ='s';
+                           maze[icod][jcod-1].setTexture(stars);
+                           maze[icod][jcod-1].setPosition(jcod*51,icod*51);
+                           maze[icod][jcod-1].setScale(0.0800,0.080);
+                          PM.setRotation(0);
+                         PM.setScale(-0.075,0.075);
+                            PM.move(-50,0);
+                            jcod--;
+                            F_num=F_num-1;
+                            cout<<"Number of fruits left:"<<F_num<<endl;
+                            score++;
+                            cout<<"the Score is:"<<score<<endl;
+                         }
+
+
+
+
+
+                        break;
+
+                    case Keyboard::Right:
+                        if(siz[icod][jcod+1] !='b' && siz[icod][jcod+1] !='d' && siz[icod][jcod+1] !='f')
+                        {
+                        PM.setRotation(0);
+                         PM.setScale(0.075,0.075);
+                        PM.move(50,0);
+                        jcod++;
+                        }
+                          if(siz[icod][jcod+1] =='k')
+                         {
+                           siz[icod][jcod+1] ='s';
+                           maze[icod][jcod+1].setTexture(stars);
+                           maze[icod][jcod+1].setPosition(jcod*51,icod*51);
+                           maze[icod][jcod+1].setScale(0.0800,0.080);
+                          PM.setRotation(0);
+                          PM.setScale(0.085,0.085);
+                            PM.move(50,0);
+                            jcod++;
+                            K_num=K_num+1;
+                            cout<<K_num<<endl;
+                         }
+                         if(siz[icod][jcod+1] =='d')
+                         {
+                             if(K_num>0)
+                             {
+                              siz[icod][jcod+1] ='s';
+                           maze[icod][jcod+1].setTexture(stars);
+                           maze[icod][jcod+1].setPosition(jcod*51,icod*51);
+                           maze[icod][jcod+1].setScale(0.0800,0.080);
+                          PM.setRotation(0);
+                          PM.setScale(0.085,0.085);
+                            PM.move(50,0);
+                            jcod++;
+                            K_num=K_num-1;
+                            cout<<K_num<<endl;
+                             }
+                             else
+                             {
+                             PM.setRotation(0);
+                             PM.setScale(0.085,0.085);
+                             PM.move(0,0);
+
+                             }
+                         }
+
+                           if(siz[icod][jcod+1] =='f')
+                         {
+                           siz[icod][jcod+1] ='s';
+                           maze[icod][jcod+1].setTexture(stars);
+                           maze[icod][jcod+1].setPosition(jcod*51,icod*51);
+                           maze[icod][jcod+1].setScale(0.0800,0.080);
+                          PM.setRotation(0);
+                          PM.setScale(0.085,0.085);
+                            PM.move(50,0);
+                            jcod++;
+                            F_num=F_num-1;
+                            cout<<"Number of fruits left:"<<F_num<<endl;
+                            score++;
+                            cout<<"the Score is:"<<score<<endl;
+                         }
+
+
+
+                        break;
+                    case Keyboard::Up:
+                         if(siz[icod-1][jcod] !='b' && siz[icod-1][jcod] !='d' && siz[icod-1][jcod] !='f')
+                         {
+                               PM.setScale(0.085,0.085);
+                               PM.setRotation(0);
+                               PM.setRotation(270);
+                               PM.move(0,-50);
+                               icod--;
+                         }
+                          if(siz[icod-1][jcod] =='k')
+                         {
+                              siz[icod-1][jcod] ='s';
+                           maze[icod-1][jcod].setTexture(stars);
+                           maze[icod-1][jcod].setPosition(jcod*51,icod*51);
+                           maze[icod-1][jcod].setScale(0.0800,0.080);
+                         PM.setScale(0.085,0.085);
+                               PM.setRotation(0);
+                               PM.setRotation(270);
+                               PM.move(0,-50);
+                               icod--;
+                            K_num=K_num+1;
+                            cout<<K_num<<endl;
+                         }
+
+                         if(siz[icod-1][jcod] =='d' && siz[icod][jcod-1] !='f')
+                         {
+                             if(K_num>0)
+                             {
+                          siz[icod-1][jcod] ='s';
+                           maze[icod-1][jcod].setTexture(stars);
+                           maze[icod-1][jcod].setPosition(jcod*51,icod*51);
+                           maze[icod-1][jcod].setScale(0.0800,0.080);
+                         PM.setScale(0.085,0.085);
+                               PM.setRotation(0);
+                               PM.setRotation(270);
+                               PM.move(0,-50);
+                               icod--;
+                            K_num=K_num-1;
+                            cout<<K_num<<endl;
+                             }
+                             else
+                             {
+                                 PM.setScale(0.075,0.075);
+                               PM.setRotation(0);
+                               PM.setRotation(270);
+                               PM.move(0,0);
+
+                             }
+                         }
+
+                           if(siz[icod-1][jcod] =='f')
+                         {
+                              siz[icod-1][jcod] ='s';
+                           maze[icod-1][jcod].setTexture(stars);
+                           maze[icod-1][jcod].setPosition(jcod*51,icod*51);
+                           maze[icod-1][jcod].setScale(0.0800,0.080);
+                         PM.setScale(0.085,0.085);
+                               PM.setRotation(0);
+                               PM.setRotation(270);
+                               PM.move(0,-50);
+                               icod--;
+                            F_num=F_num-1;
+                            cout<<"Number of fruits left:"<<F_num<<endl;
+                            score++;
+                            cout<<"the Score is:"<<score<<endl;
+                         }
+
+
+
+                        break;
+                    case Keyboard::Down:
+                        if(siz[icod+1][jcod] !='b' && siz[icod+1][jcod] !='d' && siz[icod+1][jcod] !='f')
+                       {
+                            PM.setScale(0.085,0.085);
+                            PM.setRotation(0);
+                            PM.setRotation(90);
+                            PM.move(0,50);
+                            icod++;
+                        }
+                        if(siz[icod+1][jcod] =='k')
+                         {
+                           siz[icod+1][jcod] ='s';
+                           maze[icod+1][jcod].setTexture(stars);
+                           maze[icod+1][jcod].setPosition(jcod*51,icod*51);
+                           maze[icod+1][jcod].setScale(0.0800,0.080);
+                           PM.setScale(0.085,0.085);
+                            PM.setRotation(0);
+                            PM.setRotation(90);
+                            PM.move(0,50);
+                            icod++;
+                             K_num=K_num+1;
+                             cout<<K_num<<endl;
+                         }
+
+                         if(siz[icod+1][jcod] =='d')
+                         {
+                             if(K_num>0)
+                             {
+                                 siz[icod+1][jcod] ='s';
+                           maze[icod+1][jcod].setTexture(stars);
+                           maze[icod+1][jcod].setPosition(jcod*51,icod*51);
+                           maze[icod+1][jcod].setScale(0.0800,0.080);
+                           PM.setScale(0.085,0.085);
+                            PM.setRotation(0);
+                            PM.setRotation(90);
+                            PM.move(0,50);
+                            icod++;
+                             K_num=K_num-1;
+                             cout<<K_num<<endl;
+                             }
+                             else
+                             {
+                            PM.setRotation(0);
+                            PM.setRotation(90);
+                            PM.move(0,0);
+                             }
+                         }
+                         if(siz[icod+1][jcod] =='f')
+                         {
+                           siz[icod+1][jcod] ='s';
+                           maze[icod+1][jcod].setTexture(stars);
+                           maze[icod+1][jcod].setPosition(jcod*51,icod*51);
+                           maze[icod+1][jcod].setScale(0.0800,0.080);
+                           PM.setScale(0.085,0.085);
+                            PM.setRotation(0);
+                            PM.setRotation(90);
+                            PM.move(0,50);
+                            icod++;
+                             F_num=F_num-1;
+                             cout<<"Number of fruits left:"<<F_num<<endl;
+                             score++;
+                            cout<<"the Score is:"<<score<<endl;
+                         }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        }
+
+
+
+
+
+/*/
+                    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+                    {
+                if (siz[icod][jcod+1]!= 'b')
+        {
+              PM.setRotation(0);
+              PM.setScale(0.055,0.055);
+              sf::Vector2f position = PM.getPosition();
+              PM.move(sf::Vector2f(0.1125,0));
+              jcod++;
+        }
+        }
+                   else  if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+                                             {
+                                                 if(siz[icod][jcod-1]!='b')
+                                                 {
+                                               PM.setRotation(0);
+                                               PM.setScale(-0.055,0.055);
+                                               sf::Vector2f position = PM.getPosition();
+                                               PM.move(sf::Vector2f(-0.1125,0));
+                                               jcod--;
+                                                 }
+                                               }
+                else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+                                         {
+                                             PM.setScale(0.055,0.055);
+                                             PM.setRotation(0);
+                                             PM.setRotation(270);
+                                             sf::Vector2f position = PM.getPosition();
+                                             PM.move(sf::Vector2f(0,-0.1125));
+                                         }
+                else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+                                         {
+                                             PM.setScale(0.055,0.055);
+                                             PM.setRotation(0);
+                                             PM.setRotation(90);
+                                             sf::Vector2f position = PM.getPosition();
+                                             PM.move(sf::Vector2f(0,0.1125));
+                                         }
+/*/
+
+         //if(PM.getGlobalBounds().intersects(key.getGlobalBounds()))
+         //{
+            //PM.setScale(1,1);
+         //}
+
+
+
+        if(PM.getPosition().x-55 < 0.f)
+        PM.setPosition(0.f+60,PM.getPosition().y);
+
+        if(PM.getPosition().y-55 < 0.f)
+        PM.setPosition(PM.getPosition().x,0.f+60);
+
+         if(PM.getPosition().x+55 > 850)
+        PM.setPosition(850-55,PM.getPosition().y);
+
+
+        if(PM.getPosition().y+55 > 850)
+        PM.setPosition(PM.getPosition().x,850-55);
+/////////////////////////////////////////////////////////////////////////////
+
+        if(GM.getPosition().x-55 < 0.f)
+        GM.setPosition(0.f+60,GM.getPosition().y);
+
+        if(GM.getPosition().y-55 < 0.f)
+        GM.setPosition(GM.getPosition().x,0.f+60);
+
+        if(GM.getPosition().x+55 > 850)
+        GM.setPosition(850-55,GM.getPosition().y);
+
+
+        if(GM.getPosition().y+55 > 850)
+        GM.setPosition(GM.getPosition().x,850-55);
+
+
+
+
+
+
+
+
+
+        // update the game
+
+  if(F_num>0)
+   {
+  window.clear();
+        //window.draw(Pallet);
+
+        for(auto i=0;i<r;i++)
+        {
+            for(auto j=0;j<r;j++)
+            {
+              window.draw(maze[i][j]);
+            }
+
+        }
+        window.draw(PM);
+        window.draw(GM);
+        window.draw(Points);
+        window.draw(S_num);
+        window.draw(keys);
+        window.draw(Key_num);
+
+  }
+  else
+  {
+    window.clear(sf::Color::White);
+     window.draw(G_O);
+  }
+
+
+        window.display();
+    }
+}
